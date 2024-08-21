@@ -75,10 +75,10 @@ int main(int argc, char* argv[])
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Gatherv(rec_p, counts[rank], MPI_DOUBLE, answer_pref, counts, displacements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    double end_time = MPI_Wtime() - start_time;
+    double elapsed_time = MPI_Wtime() - start_time;
     double total_time;
 
-    MPI_Reduce(&end_time, &total_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&elapsed_time, &total_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
     
     if(rank==0){
       for(int i=0;i<n;i++){
