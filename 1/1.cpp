@@ -2,7 +2,7 @@
 using namespace std;
 #include <mpi.h>
 
-int main(){
+int main(int argc, char* argv[]){
   // Initialize MPI Environment
   MPI_Init(&argc, &argv);
   int size = 0;
@@ -14,6 +14,10 @@ int main(){
   int n, m, k;
   double **p; // points
   double **q; // queries
+  double **rec_p; // distributed points
+  int *counts = (int*)malloc(sizeof(int)*size);
+  int *displacements = (int*)malloc(sizeof(int)*size);
+  int cnt_total = 0;
 
   if(rank == 0){
     cin>>n>>m>>k;
@@ -48,5 +52,34 @@ int main(){
     MPI_Bcast(q[i], 2, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   }
 
-  
+  for(int i=0;i<size;i++){
+    counts[i]=n/size;
+    int rem=n%size;
+    if(rem>i){
+      counts[i]++;
+    }
+    displacements[i]=cnt_total;
+    cnt_total+=counts[i];
+  }
+
+  rec_p = (double**)malloc(sizeof(double*)*counts[rank]);
+  for(int i=0;i<counts[rank];i++){
+    rec_p[i]=(double*)malloc(sizeof(double)*2);
+  }
+
+  // Bug, issue in sending contiguous blocks with 2d array
+  MPI_Scatterv(p, counts, displacements, MPI_DOUBLE, rec_p, counts[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  cout<<"Process "<<rank<<endl;
+  for(int i=0;i<counts[rank];i++){
+    cout<<rec_p[i][0]<<' '<<rec_p[i][1]<<endl;
+  }
+  cout<<"------------------------------------\n";
+
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  // Clean up befpre exiting
+  MPI_Finalize(); 
+  return 0;
 }
