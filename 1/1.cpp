@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Optimize here?
-  rec_p = (pair<double, double>*)malloc(sizeof(pair<double, double>) * k);
+  rec_p = (pair<double, double>*)malloc(sizeof(pair<double, double>) * counts[rank]);
 
   MPI_Scatterv(p, counts, displacements, MPI_DOUBLE, rec_p, counts[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
