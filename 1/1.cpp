@@ -30,10 +30,11 @@ int main(int argc, char* argv[]) {
   MPI_Bcast(&m, 1, MPI_INT, 0, MPI_COMM_WORLD); 
   MPI_Bcast(&k, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-  p = (pair<double, double>*)malloc(sizeof(pair<double, double>) * n);
   q = (pair<double, double>*)malloc(sizeof(pair<double, double>) * m);
 
   if(rank == 0) {
+    p = (pair<double, double>*)malloc(sizeof(pair<double, double>) * n);
+
     for(int i=0;i<n;i++) {
         cin >> p[i].first >> p[i].second;
     }
@@ -96,6 +97,7 @@ int main(int argc, char* argv[]) {
         cout<<all_p[j].second.first<<' '<<all_p[j].second.second<<endl;
       }
     }
+    MPI_Barrier(MPI_COMM_WORLD);
   }
 
   double elapsed_time = MPI_Wtime() - start_time;
