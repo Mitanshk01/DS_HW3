@@ -15,16 +15,16 @@ bool check_bound(double &z_real, double &z_img, double c_real, double c_img){
 }
 
 double get_real(int m, int ind_real){
-  double num = 3*ind_real;
-  double denom = m;
+  double num = 3*(ind_real-1);
+  double denom = m-1;
   double z_real = num/denom;
   z_real-=1.5;
   return z_real;
 }
 
 double get_img(int n, int ind_img){
-  double num = 3*(n-ind_img+1);
-  double denom = n;
+  double num = 3*(ind_img-1);
+  double denom = n-1;
   double z_img = num/denom;
   z_img-=1.5;
   return z_img;
