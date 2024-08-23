@@ -89,19 +89,19 @@ int main(int argc, char* argv[]) {
 
   for(int i=0;i<n;i++){
     for(int j=0;j<m;j++){
-      indices[i*n+j]={i+1,j+1};
+      indices[i*n+j].first=i+1;
+      indices[i*n+j].second=j+1;
     }
   }
 
   rec_indices = (pair<int,int> *)malloc(sizeof(pair<int,int>)*counts[rank]);
   temp_ans = (int *)malloc(sizeof(int)*(counts[rank]/2));
   
-  MPI_Scatterv(indices, counts, displacements, MPI_DOUBLE, rec_indices, counts[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  MPI_Scatterv(indices, counts_gather, displacements_gather, MPI_INT, temp_ans, counts_gather[rank], MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Scatterv(indices, counts, displacements, MPI_INT, rec_indices, counts[rank], MPI_INT, 0, MPI_COMM_WORLD);
   
   for(int i=0;i<counts[rank]/2;i++){ 
-    double z0_real=get_real(m, rec_indices[i].first);
-    double z0_img=get_img(n, rec_indices[i].second);
+    double z0_real=get_real(m, rec_indices[i].second);
+    double z0_img=get_img(n, rec_indices[i].first);
     temp_ans[i]=1;
     for(int j=1;j<=k;j++){
       bool ok=check_bound(z0_real, z0_img, c_real, c_img);
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
       }
       cout<<endl;
     }
-    cout<<"Total time taken(s) : "<<total_time<<"\n";
+    // cout<<"Total time taken(s) : "<<total_time<<"\n";
   }
 
   MPI_Finalize(); 
