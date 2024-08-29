@@ -17,13 +17,12 @@ int main(int argc, char* argv[])
     int n;
     double *p;
     double *rec_p;
-    double *proc_sum_arr;
     double *answer_pref;
     double sum = 0;
     int *counts = (int*)malloc(sizeof(int)*size);
     int *displacements = (int*)malloc(sizeof(int)*size);
     int cnt_total = 0;
-    double left_pref = 0;
+    double prefix_add = 0;
 
     if(rank == 0){
       cin>>n;
@@ -59,17 +58,22 @@ int main(int argc, char* argv[])
     }
 
     sum = rec_p[counts[rank]-1];
-    proc_sum_arr = (double*)malloc(sizeof(double)*size);
 
     MPI_Barrier(MPI_COMM_WORLD);
-    MPI_Allgather(&sum, 1, MPI_DOUBLE, proc_sum_arr, 1, MPI_DOUBLE, MPI_COMM_WORLD);
 
-    for(int i=0;i<rank;i++){
-      left_pref += proc_sum_arr[i];
+    if(rank != 0){
+        MPI_Recv(&prefix_add, 1, MPI_DOUBLE, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
+    if(rank != size - 1){
+        double temp_sum = sum + prefix_add;
+        MPI_Send(&temp_sum, 1, MPI_DOUBLE, rank + 1, 0, MPI_COMM_WORLD);
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
     for(int i=0;i<counts[rank];i++){
-      rec_p[i] += left_pref;
+      rec_p[i] += prefix_add;
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -85,7 +89,7 @@ int main(int argc, char* argv[])
         cout<<answer_pref[i]<<' ';
       }
       cout<<endl;
-      // cout<<"Total time taken(s) : "<<total_time<<"\n";
+      cout<<"Total time taken(s) : "<<total_time<<"\n";
     }
 
     // Clean up befpre exiting
