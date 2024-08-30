@@ -2,7 +2,8 @@
 #include <mpi.h>
 using namespace std;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
   // Initialize MPI Environment
   MPI_Init(&argc, &argv);
   int size, rank;
@@ -13,40 +14,52 @@ int main(int argc, char* argv[]) {
   double **mat;
   double **I;
 
-  if(rank == 0){
-    cin>>n;
+  if (rank == 0)
+  {
+    cin >> n;
   }
   double start_time = MPI_Wtime();
-  MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD); 
+  MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-  mat = (double**)malloc(sizeof(double*)*n);
-  I = (double**)malloc(sizeof(double*)*n);
-  for(int i=0;i<n;i++){
-    mat[i]=(double*)malloc(sizeof(double)*n);
-    I[i]=(double*)malloc(sizeof(double)*n);
-    I[i][i]=1;
+  mat = (double **)malloc(sizeof(double *) * n);
+  I = (double **)malloc(sizeof(double *) * n);
+  for (int i = 0; i < n; i++)
+  {
+    mat[i] = (double *)malloc(sizeof(double) * n);
+    I[i] = (double *)malloc(sizeof(double) * n);
+    I[i][i] = 1;
   }
 
-  if(rank == 0){
-    for(int i=0;i<n;i++){
-      for(int j=0;j<n;j++){
-        cin>>mat[i][j];
+  if (rank == 0)
+  {
+    for (int i = 0; i < n; i++)
+    {
+      for (int j = 0; j < n; j++)
+      {
+        cin >> mat[i][j];
       }
     }
   }
 
-  for(int i=0;i<n;i++){
+  for (int i = 0; i < n; i++)
+  {
     MPI_Bcast(mat[i], n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   }
 
-  for(int i=0;i<n;i++){
-    if(rank==i%size){
-      if(mat[i][i]==0){
-        for(int j=i+1;j<n;j++){
-          if(mat[j][i]!=0){
-            for(int col=0;col<n;col++){
-              swap(mat[i][col],mat[j][col]);
-              swap(I[i][col],I[j][col]);
+  for (int i = 0; i < n; i++)
+  {
+    if (rank == i % size)
+    {
+      if (mat[i][i] == 0)
+      {
+        for (int j = i + 1; j < n; j++)
+        {
+          if (mat[j][i] != 0)
+          {
+            for (int col = 0; col < n; col++)
+            {
+              swap(mat[i][col], mat[j][col]);
+              swap(I[i][col], I[j][col]);
             }
 
             MPI_Bcast(mat[i], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
@@ -59,29 +72,34 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-    
+
     MPI_Barrier(MPI_COMM_WORLD);
 
     double pivot_val = mat[i][i];
     MPI_Bcast(&pivot_val, 1, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
 
-    if(rank == i%size){
-      for(int col=0;col<n;col++){
-        mat[i][col]/=pivot_val;
-        I[i][col]/=pivot_val;
+    if (rank == i % size)
+    {
+      for (int col = 0; col < n; col++)
+      {
+        mat[i][col] /= pivot_val;
+        I[i][col] /= pivot_val;
       }
     }
-    
-    MPI_Barrier(MPI_COMM_WORLD);
-    MPI_Bcast(mat[i], n, MPI_DOUBLE, i%size, MPI_COMM_WORLD);
-    MPI_Bcast(I[i], n, MPI_DOUBLE, i%size, MPI_COMM_WORLD);
 
-    for (int row = i + 1; row < n; row++){
-      if(row%size==rank){
-        double row_val=mat[row][i];
-        for(int col=0;col<n;col++){
-          mat[row][col]-=row_val*mat[i][col];
-          I[row][col]-=row_val*I[i][col];
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Bcast(mat[i], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
+    MPI_Bcast(I[i], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
+
+    for (int row = i + 1; row < n; row++)
+    {
+      if (row % size == rank)
+      {
+        double row_val = mat[row][i];
+        for (int col = 0; col < n; col++)
+        {
+          mat[row][col] -= row_val * mat[i][col];
+          I[row][col] -= row_val * I[i][col];
         }
       }
     }
@@ -89,15 +107,19 @@ int main(int argc, char* argv[]) {
     MPI_Barrier(MPI_COMM_WORLD);
   }
 
-  for(int i=n-1;i>=0;i--){
+  for (int i = n - 1; i >= 0; i--)
+  {
     MPI_Bcast(mat[i], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
     MPI_Bcast(I[i], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
-    for(int row=i-1;row>=0;row--){
-      if(row%size==rank){
-        double row_val=mat[row][i];
-        for(int col=0;col<n;col++){
-          mat[row][col]-=row_val*mat[i][col];
-          I[row][col]-=row_val*I[i][col];
+    for (int row = i - 1; row >= 0; row--)
+    {
+      if (row % size == rank)
+      {
+        double row_val = mat[row][i];
+        for (int col = 0; col < n; col++)
+        {
+          mat[row][col] -= row_val * mat[i][col];
+          I[row][col] -= row_val * I[i][col];
         }
       }
     }
@@ -108,16 +130,19 @@ int main(int argc, char* argv[]) {
 
   MPI_Reduce(&elapsed_time, &total_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
-  if (rank == 0) {
+  if (rank == 0)
+  {
     // cout<<"Total time taken(s) : "<<total_time<<"\n";
-    for(int i=0;i<n;i++){
-      for(int j=0;j<n;j++){
-        cout<<fixed<<setprecision(2)<<I[i][j]<<' ';
+    for (int i = 0; i < n; i++)
+    {
+      for (int j = 0; j < n; j++)
+      {
+        cout << fixed << setprecision(2) << I[i][j] << ' ';
       }
-      cout<<endl;
+      cout << endl;
     }
   }
 
-  MPI_Finalize(); 
+  MPI_Finalize();
   return 0;
 }
