@@ -48,10 +48,6 @@ int main(int argc, char *argv[])
   int *temp_ans;
   int *counts = (int *)malloc(sizeof(int) * size);
   int *displacements = (int *)malloc(sizeof(int) * size);
-  int *counts_gather = (int *)malloc(sizeof(int) * size);
-  int *displacements_gather = (int *)malloc(sizeof(int) * size);
-  pair<int, int> *indices;
-  pair<int, int> *rec_indices;
   const char *filename = argv[1];
 
   if (rank == 0)
@@ -68,12 +64,12 @@ int main(int argc, char *argv[])
   MPI_Bcast(&c_real, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(&c_img, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   double start_time = MPI_Wtime();
-  
+
   ans = (int *)malloc(sizeof(int) * (n * m));
-  indices = (pair<int, int> *)malloc(sizeof(pair<int, int>) * (n * m));
 
   int cnt_total = 0;
   int total = n * m;
+
   for (int i = 0; i < size; i++)
   {
     counts[i] = total / size;
@@ -82,42 +78,29 @@ int main(int argc, char *argv[])
     {
       counts[i]++;
     }
-    counts[i] *= 2;
     displacements[i] = cnt_total;
     cnt_total += counts[i];
   }
 
-  cnt_total = 0;
-  for (int i = 0; i < size; i++)
+  int proc_size = total / size;
+  int rem_size = total % size;
+  if (rank < rem_size)
   {
-    counts_gather[i] = total / size;
-    int rem = total % size;
-    if (rem > i)
-    {
-      counts_gather[i]++;
-    }
-    displacements_gather[i] = cnt_total;
-    cnt_total += counts_gather[i];
+    proc_size++;
   }
+  temp_ans = (int *)malloc(sizeof(int) * (counts[rank]));
 
-  for (int i = 0; i < n; i++)
+  int proc_st_idx = rank * proc_size + min(rank, rem_size);
+  int proc_end_idx = proc_st_idx + proc_size;
+  for (int i = 0; i < counts[rank]; i++)
   {
-    for (int j = 0; j < m; j++)
-    {
-      indices[i * n + j].first = i + 1;
-      indices[i * n + j].second = j + 1;
-    }
-  }
-
-  rec_indices = (pair<int, int> *)malloc(sizeof(pair<int, int>) * counts[rank]);
-  temp_ans = (int *)malloc(sizeof(int) * (counts[rank] / 2));
-
-  MPI_Scatterv(indices, counts, displacements, MPI_INT, rec_indices, counts[rank], MPI_INT, 0, MPI_COMM_WORLD);
-
-  for (int i = 0; i < counts[rank] / 2; i++)
-  {
-    double z0_real = get_real(m, rec_indices[i].second);
-    double z0_img = get_img(n, rec_indices[i].first);
+    int glob_idx = proc_st_idx + i;
+    int rval = glob_idx % m;
+    rval++;
+    int ival = glob_idx / m;
+    ival++;
+    double z0_real = get_real(m, rval);
+    double z0_img = get_img(n, ival);
     temp_ans[i] = 1;
     for (int j = 1; j <= k; j++)
     {
@@ -132,7 +115,7 @@ int main(int argc, char *argv[])
 
   MPI_Barrier(MPI_COMM_WORLD);
 
-  MPI_Gatherv(temp_ans, counts_gather[rank], MPI_INT, ans, counts_gather, displacements_gather, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Gatherv(temp_ans, counts[rank], MPI_INT, ans, counts, displacements, MPI_INT, 0, MPI_COMM_WORLD);
 
   double elapsed_time = MPI_Wtime() - start_time;
   double total_time;
@@ -141,7 +124,7 @@ int main(int argc, char *argv[])
 
   if (rank == 0)
   {
-    for (int i = 0; i < n; i++)
+    for (int i = n - 1; i >= 0; i--)
     {
       for (int j = 0; j < m; j++)
       {

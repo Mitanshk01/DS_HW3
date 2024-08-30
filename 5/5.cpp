@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
     cin >> n;
     n++;
   }
-  double start_time = MPI_Wtime();
   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   mat = (int *)malloc(sizeof(int) * n);
@@ -38,7 +37,7 @@ int main(int argc, char *argv[])
   }
 
   MPI_Bcast(mat, n, MPI_INT, 0, MPI_COMM_WORLD);
-
+  double start_time = MPI_Wtime();
   dp = (ll **)malloc(sizeof(ll *) * n);
   for (int i = 0; i < n; i++)
   {
@@ -58,6 +57,7 @@ int main(int argc, char *argv[])
 
       ll local_min_cost = LONG_LONG_MAX;
 
+      // Fix the coordinates
       int k_start = i + 1 + rank * ((j - i - 1) / size);
       int k_end = i + 1 + (rank + 1) * ((j - i - 1) / size);
       if (rank == size - 1)
