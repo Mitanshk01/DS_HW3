@@ -13,12 +13,13 @@ int main(int argc, char *argv[])
   int n;
   double **mat;
   double **I;
+  const char *filename = argv[1];
 
   if (rank == 0)
   {
+    freopen(filename, "r", stdin);
     cin >> n;
   }
-  double start_time = MPI_Wtime();
   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   mat = (double **)malloc(sizeof(double *) * n);
@@ -39,12 +40,15 @@ int main(int argc, char *argv[])
         cin >> mat[i][j];
       }
     }
+    fclose(stdin);
   }
 
   for (int i = 0; i < n; i++)
   {
     MPI_Bcast(mat[i], n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   }
+
+  double start_time = MPI_Wtime();
 
   for (int i = 0; i < n; i++)
   {
