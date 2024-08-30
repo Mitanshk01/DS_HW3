@@ -21,9 +21,11 @@ int main(int argc, char *argv[])
   int *displacements = (int *)malloc(sizeof(int) * size);
   int *counts_gather = (int *)malloc(sizeof(int) * size);
   int *displacements_gather = (int *)malloc(sizeof(int) * size);
+  const char *filename = argv[1];
 
   if (rank == 0)
   {
+    freopen(filename, "r", stdin);
     cin >> n >> m >> k;
   }
 
@@ -46,6 +48,7 @@ int main(int argc, char *argv[])
     {
       cin >> q[i].first >> q[i].second;
     }
+    fclose(stdin);
   }
 
   MPI_Bcast(q, m * 2, MPI_DOUBLE, 0, MPI_COMM_WORLD);

@@ -52,20 +52,23 @@ int main(int argc, char *argv[])
   int *displacements_gather = (int *)malloc(sizeof(int) * size);
   pair<int, int> *indices;
   pair<int, int> *rec_indices;
+  const char *filename = argv[1];
 
   if (rank == 0)
   {
+    freopen(filename, "r", stdin);
     cin >> n >> m >> k;
     cin >> c_real >> c_img;
+    fclose(stdin);
   }
 
-  double start_time = MPI_Wtime();
   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&m, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&k, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&c_real, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(&c_img, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
+  double start_time = MPI_Wtime();
+  
   ans = (int *)malloc(sizeof(int) * (n * m));
   indices = (pair<int, int> *)malloc(sizeof(pair<int, int>) * (n * m));
 

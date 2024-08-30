@@ -15,9 +15,11 @@ int main(int argc, char *argv[])
   int n;
   int *mat;
   ll **dp;
+  const char *filename = argv[1];
 
   if (rank == 0)
   {
+    freopen(filename, "r", stdin);
     cin >> n;
     n++;
   }
@@ -32,6 +34,7 @@ int main(int argc, char *argv[])
     {
       cin >> mat[i];
     }
+    fclose(stdin);
   }
 
   MPI_Bcast(mat, n, MPI_INT, 0, MPI_COMM_WORLD);
@@ -51,9 +54,9 @@ int main(int argc, char *argv[])
     for (int i = 0; i < n - slider_len; i++)
     {
       int j = i + slider_len;
-      dp[i][j] = LLONG_MAX;
+      dp[i][j] = LONG_LONG_MAX;
 
-      ll local_min_cost = LLONG_MAX;
+      ll local_min_cost = LONG_LONG_MAX;
 
       int k_start = i + 1 + rank * ((j - i - 1) / size);
       int k_end = i + 1 + (rank + 1) * ((j - i - 1) / size);

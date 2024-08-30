@@ -23,13 +23,13 @@ int main(int argc, char *argv[])
   int *displacements = (int *)malloc(sizeof(int) * size);
   int cnt_total = 0;
   double prefix_add = 0;
+  const char *filename = argv[1];
 
   if (rank == 0)
   {
+    freopen(filename, "r", stdin);
     cin >> n;
   }
-
-  double start_time = MPI_Wtime();
 
   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     {
       cin >> p[i];
     }
+    fclose(stdin);
   }
 
   for (int i = 0; i < size; i++)
@@ -57,6 +58,8 @@ int main(int argc, char *argv[])
 
   rec_p = (double *)malloc(sizeof(double) * counts[rank]);
   MPI_Scatterv(p, counts, displacements, MPI_DOUBLE, rec_p, counts[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+  double start_time = MPI_Wtime();
 
   for (int i = 1; i < counts[rank]; i++)
   {
@@ -95,12 +98,12 @@ int main(int argc, char *argv[])
 
   if (rank == 0)
   {
+    cout << "Total time taken(s) : " << total_time << "\n";
     for (int i = 0; i < n; i++)
     {
-      cout << answer_pref[i] << ' ';
+      cout << fixed << setprecision(2) << answer_pref[i] << ' ';
     }
     cout << endl;
-    cout << "Total time taken(s) : " << total_time << "\n";
   }
 
   // Clean up befpre exiting
