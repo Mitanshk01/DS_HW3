@@ -13,10 +13,11 @@ int main(int argc, char* argv[]) {
 
   int n;
   int *mat;
-  ll **dp;  // Change to ll
+  ll **dp;
 
   if(rank == 0){
-    cin >> n; n++;
+    cin >> n; 
+    n++;
   }
   double start_time = MPI_Wtime();
   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD); 
