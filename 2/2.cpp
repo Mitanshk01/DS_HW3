@@ -82,16 +82,11 @@ int main(int argc, char *argv[])
     cnt_total += counts[i];
   }
 
-  int proc_size = total / size;
-  int rem_size = total % size;
-  if (rank < rem_size)
-  {
-    proc_size++;
-  }
   temp_ans = (int *)malloc(sizeof(int) * (counts[rank]));
 
-  int proc_st_idx = rank * proc_size + min(rank, rem_size);
-  int proc_end_idx = proc_st_idx + proc_size;
+  int proc_st_idx = displacements[rank];
+  int proc_end_idx = proc_st_idx + counts[rank];
+  // cout<<"Process "<<rank<<' '<<proc_st_idx<<' '<<proc_end_idx<<endl;
   for (int i = 0; i < counts[rank]; i++)
   {
     int glob_idx = proc_st_idx + i;
