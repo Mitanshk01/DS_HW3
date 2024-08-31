@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
     cnt_total += counts[i];
   }
 
-  // Optimize here?
   rec_p = (pair<double, double> *)malloc(sizeof(pair<double, double>) * counts[rank]);
 
   MPI_Scatterv(p, counts, displacements, MPI_DOUBLE, rec_p, counts[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -93,7 +92,7 @@ int main(int argc, char *argv[])
     {
       if (j >= dist_p.size())
       {
-        sorted_p[j] = {1e12, {-1, -1}};
+        sorted_p[j] = {1e18, {-1, -1}};
       }
       else
       {
