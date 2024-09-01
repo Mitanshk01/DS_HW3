@@ -28,6 +28,10 @@ int main(int argc, char *argv[])
   {
     mat[i] = (double *)malloc(sizeof(double) * n);
     I[i] = (double *)malloc(sizeof(double) * n);
+    for (int j = 0; j < n; j++)
+    {
+      I[i][j] = 0;
+    }
     I[i][i] = 1;
   }
 
