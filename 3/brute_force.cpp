@@ -24,7 +24,9 @@ int main(int argc, char *argv[])
 
   for (int i = 0; i < N; ++i)
   {
-    std::cout << std::fixed << std::setprecision(2) << p[i] << ' ';
+    std::cout << std::fixed << std::setprecision(2) << p[i];
+    if (i != N - 1)
+      std::cout << " ";
   }
   std::cout << std::endl;
 
