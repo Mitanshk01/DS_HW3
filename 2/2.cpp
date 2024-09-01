@@ -2,11 +2,17 @@
 #include <mpi.h>
 using namespace std;
 
+double get_magnitude(double z_real, double z_img)
+{
+  double mag = (z_real * z_real) + (z_img * z_img);
+  return mag;
+}
+
 bool check_bound(double &z_real, double &z_img, double c_real, double c_img)
 {
   double z_next_real = (z_real * z_real) - (z_img * z_img) + c_real;
   double z_next_img = (2 * z_real * z_img) + c_img;
-  double mag = (z_next_real * z_next_real) + (z_next_img * z_next_img);
+  double mag = get_magnitude(z_next_real, z_next_img);
   z_real = z_next_real;
   z_img = z_next_img;
   if (mag > 4)
@@ -30,7 +36,7 @@ double get_img(int n, int ind_img)
   double num = 3 * (ind_img - 1);
   double denom = n - 1;
   double z_img = num / denom;
-  z_img -= 1.5;
+  z_img = 1.5 - z_img;
   return z_img;
 }
 
@@ -97,6 +103,11 @@ int main(int argc, char *argv[])
     double z0_real = get_real(m, rval);
     double z0_img = get_img(n, ival);
     temp_ans[i] = 1;
+    if (get_magnitude(z0_real, z0_img) > 4)
+    {
+      temp_ans[i] = 0;
+      continue;
+    }
     for (int j = 1; j <= k; j++)
     {
       bool ok = check_bound(z0_real, z0_img, c_real, c_img);
@@ -123,7 +134,7 @@ int main(int argc, char *argv[])
     {
       for (int j = 0; j < m; j++)
       {
-        cout << ans[i * n + j] << ' ';
+        cout << ans[i * m + j] << ' ';
       }
       cout << endl;
     }
