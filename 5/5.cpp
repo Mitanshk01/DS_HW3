@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
     cin >> n;
     n++;
   }
-  double start_time = MPI_Wtime();
   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   mat = (int *)malloc(sizeof(int) * n);
@@ -40,6 +39,7 @@ int main(int argc, char *argv[])
   }
 
   MPI_Bcast(mat, n, MPI_INT, 0, MPI_COMM_WORLD);
+  double start_time = MPI_Wtime();
 
   dp = (ll **)malloc(sizeof(ll *) * n);
   for (int i = 0; i < n; i++)
