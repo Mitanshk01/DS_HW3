@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
       sort(all_p, all_p + tot_size);
       for (int j = 0; j < k; j++)
       {
-        cout << all_p[j].second.first << ' ' << all_p[j].second.second << endl;
+        cout << fixed << setprecision(2) << all_p[j].second.first << ' ' << all_p[j].second.second << endl;
       }
     }
     MPI_Barrier(MPI_COMM_WORLD);
@@ -124,10 +124,10 @@ int main(int argc, char *argv[])
 
   MPI_Reduce(&elapsed_time, &total_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
-  if (rank == 0)
-  {
-    cout << "Total time taken(s) : " << total_time << "\n";
-  }
+  // if (rank == 0)
+  // {
+  //   cout << "Total time taken(s) : " << total_time << "\n";
+  // }
 
   MPI_Finalize();
   return 0;
