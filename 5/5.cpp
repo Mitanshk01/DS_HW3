@@ -15,6 +15,8 @@ int main(int argc, char *argv[])
   int n;
   int *mat;
   ll **dp;
+  ll *local_results;
+  ll *gathered_results;
   const char *filename = argv[1];
 
   if (rank == 0)
@@ -23,6 +25,7 @@ int main(int argc, char *argv[])
     cin >> n;
     n++;
   }
+  double start_time = MPI_Wtime();
   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   mat = (int *)malloc(sizeof(int) * n);
@@ -37,7 +40,7 @@ int main(int argc, char *argv[])
   }
 
   MPI_Bcast(mat, n, MPI_INT, 0, MPI_COMM_WORLD);
-  double start_time = MPI_Wtime();
+
   dp = (ll **)malloc(sizeof(ll *) * n);
   for (int i = 0; i < n; i++)
   {
@@ -50,32 +53,55 @@ int main(int argc, char *argv[])
 
   for (int slider_len = 2; slider_len < n; slider_len++)
   {
-    for (int i = 0; i < n - slider_len; i++)
+    int block_size = (n - slider_len) / size;
+    int remainder = (n - slider_len) % size;
+
+    int st = rank * block_size + min(rank, remainder);
+    int en = st + block_size + (rank < remainder ? 1 : 0);
+
+    local_results = (ll *)malloc(sizeof(ll) * (en - st));
+    gathered_results = (ll *)malloc(sizeof(ll) * (n - slider_len));
+
+    int *counts = (int *)malloc(size * sizeof(int));
+    int *displacements = (int *)malloc(size * sizeof(int));
+    int cnt_total = 0;
+    int total = n - slider_len;
+
+    for (int i = 0; i < size; i++)
+    {
+      counts[i] = total / size;
+      int rem = total % size;
+      if (rem > i)
+      {
+        counts[i]++;
+      }
+      displacements[i] = cnt_total;
+      cnt_total += counts[i];
+    }
+
+    for (int i = st; i < en; i++)
     {
       int j = i + slider_len;
       dp[i][j] = LONG_LONG_MAX;
-
-      ll local_min_cost = LONG_LONG_MAX;
-
-      // Fix the coordinates
-      int k_start = i + 1 + rank * ((j - i - 1) / size);
-      int k_end = i + 1 + (rank + 1) * ((j - i - 1) / size);
-      if (rank == size - 1)
+      for (int k = i + 1; k < j; k++)
       {
-        k_end = j;
+        dp[i][j] = min(dp[i][j], dp[i][k] + dp[k][j] + (ll)mat[i] * mat[k] * mat[j]);
       }
-
-      for (int k = k_start; k < k_end; k++)
-      {
-        ll cost = dp[i][k] + dp[k][j] + (ll)mat[i] * mat[k] * mat[j];
-        local_min_cost = min(local_min_cost, cost);
-      }
-
-      MPI_Barrier(MPI_COMM_WORLD);
-      ll global_min_cost;
-      MPI_Allreduce(&local_min_cost, &global_min_cost, 1, MPI_LONG_LONG, MPI_MIN, MPI_COMM_WORLD);
-      dp[i][j] = global_min_cost;
+      local_results[i - st] = dp[i][j];
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Allgatherv(local_results, en - st, MPI_LONG_LONG, gathered_results, counts, displacements, MPI_LONG_LONG, MPI_COMM_WORLD);
+
+    for (int i = 0; i < n - slider_len; i++)
+    {
+      int j = i + slider_len;
+      dp[i][j] = gathered_results[i];
+    }
+
+    free(local_results);
+    free(gathered_results);
   }
 
   double elapsed_time = MPI_Wtime() - start_time;
@@ -86,7 +112,7 @@ int main(int argc, char *argv[])
   if (rank == 0)
   {
     cout << dp[0][n - 1] << endl;
-    cout << "Total time taken(s) : " << total_time << "\n";
+    // cout << "Total time taken(s) : " << total_time << "\n";
   }
 
   MPI_Finalize();
