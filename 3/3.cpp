@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 
   if (rank == 0)
   {
-    cout << "Total time taken(s) : " << total_time << "\n";
+    // cout << "Total time taken(s) : " << total_time << "\n";
     for (int i = 0; i < n; i++)
     {
       cout << fixed << setprecision(2) << answer_pref[i] << ' ';
