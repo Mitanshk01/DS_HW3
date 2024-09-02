@@ -20,8 +20,8 @@ int main()
 
   for (int i = 1; i <= 15; i++)
   {
-    int N = rand() % 99 + 2;                                      // 2 ≤ N ≤ 100
-    int M = rand() % 99 + 2;                                      // 2 ≤ M ≤ 100
+    int N = rand() % 999 + 2;                                      // 2 ≤ N ≤ 1000
+    int M = rand() % 999 + 2;                                      // 2 ≤ M ≤ 1000
     int K = rand() % 100 + 1;                                     // 1 ≤ K ≤ 100
     double c_r = -2 + static_cast<double>(rand()) / RAND_MAX * 4; // -2 ≤ c_r ≤ 2
     double c_i = -2 + static_cast<double>(rand()) / RAND_MAX * 4; // -2 ≤ c_i ≤ 2

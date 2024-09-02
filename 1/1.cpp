@@ -29,7 +29,6 @@ int main(int argc, char *argv[])
     cin >> n >> m >> k;
   }
 
-  double start_time = MPI_Wtime();
   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&m, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&k, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -51,6 +50,7 @@ int main(int argc, char *argv[])
     fclose(stdin);
   }
 
+  double start_time = MPI_Wtime();
   MPI_Bcast(q, m * 2, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
   int cnt_total = 0;
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     cnt_total += counts[i];
   }
 
-  rec_p = (pair<double, double> *)malloc(sizeof(pair<double, double>) * counts[rank]);
+  rec_p = (pair<double, double> *)malloc(sizeof(pair<double, double>) * (counts[rank] / 2));
 
   MPI_Scatterv(p, counts, displacements, MPI_DOUBLE, rec_p, counts[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
