@@ -14,7 +14,6 @@ int main(int argc, char *argv[])
   double **mat;
   double **I;
   const char *filename = argv[1];
-
   if (rank == 0)
   {
     freopen(filename, "r", stdin);
@@ -56,32 +55,40 @@ int main(int argc, char *argv[])
 
   for (int i = 0; i < n; i++)
   {
+    int swap_row = 0;
+    for (int j = i + 1; j < n; j++)
+    {
+      if (j % size == rank && mat[j][i] != 0)
+      {
+        swap_row = j;
+        break;
+      }
+    }
+
+    int global_swap_row;
+    MPI_Allreduce(&swap_row, &global_swap_row, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+
+    MPI_Bcast(mat[global_swap_row], n, MPI_DOUBLE, global_swap_row % size, MPI_COMM_WORLD);
+    MPI_Bcast(I[global_swap_row], n, MPI_DOUBLE, global_swap_row % size, MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
     if (rank == i % size)
     {
       if (mat[i][i] == 0)
       {
-        for (int j = i + 1; j < n; j++)
+        for (int col = 0; col < n; col++)
         {
-          if (mat[j][i] != 0)
-          {
-            for (int col = 0; col < n; col++)
-            {
-              swap(mat[i][col], mat[j][col]);
-              swap(I[i][col], I[j][col]);
-            }
-
-            MPI_Bcast(mat[i], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
-            MPI_Bcast(mat[j], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
-            MPI_Bcast(I[i], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
-            MPI_Bcast(I[j], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
-
-            break;
-          }
+          swap(mat[i][col], mat[global_swap_row][col]);
+          swap(I[i][col], I[global_swap_row][col]);
         }
       }
     }
-
     MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Bcast(mat[i], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
+    MPI_Bcast(mat[global_swap_row], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
+    MPI_Bcast(I[i], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
+    MPI_Bcast(I[global_swap_row], n, MPI_DOUBLE, i % size, MPI_COMM_WORLD);
 
     double pivot_val = mat[i][i];
     MPI_Bcast(&pivot_val, 1, MPI_DOUBLE, i % size, MPI_COMM_WORLD);

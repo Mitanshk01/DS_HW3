@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Compile the test case generator and the brute-force script
-g++ -o test_gen test_gen.cpp
-g++ -o bruteforce_prefix_sum brute_force.cpp
+g++ -o test_gen 3_test_gen.cpp
+g++ -o bruteforce_prefix_sum 3_brute_force.cpp
 
 # Compile the MPI program
 mpic++ -o mpi_prefix_sum 3.cpp  
@@ -27,7 +27,7 @@ for i in {1..15}; do
 
     # Run MPI method with 1 to 12 processes
     for np in {1..12}; do
-        mpiexec -np $np --use-hwthread-cpus --oversubscribe ./mpi_prefix_sum < $test_file > results/mpi_$np_$i.txt
+        mpiexec -np $np --use-hwthread-cpus --oversubscribe ./mpi_prefix_sum $test_file > results/mpi_$np_$i.txt
 
         # Normalize spaces in output files
         normalize_spaces results/brute_force_$i.txt results/brute_force_$i_normalized.txt

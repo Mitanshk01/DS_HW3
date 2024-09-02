@@ -35,7 +35,7 @@ int main()
     // Generate the remaining 10 test cases with N between 1 and 100,000
     for (int i = 6; i <= 15; ++i)
     {
-        int N = 1 + std::rand() % 5000000; // Gene rate N between 1 and 200,000
+        int N = 1 + std::rand() % 200000; // Gene rate N between 1 and 200,000
         generate_test_case(i, N);
     }
 

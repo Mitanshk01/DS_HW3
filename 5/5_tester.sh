@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Compile the test case generator and the brute-force script
-g++ -o test_gen test_gen.cpp
-g++ -o brute_force brute_force.cpp
+g++ -o test_gen 5_test_gen.cpp
+g++ -o brute_force 5_brute_force.cpp
 
 # Compile the MPI program
 mpic++ -o mpi_matrix_chain 5.cpp  
@@ -22,7 +22,7 @@ for i in {1..15}; do
 
     # Run MPI method with 1 to 12 processes
     for np in {1..12}; do
-        mpiexec -np $np --use-hwthread-cpus --oversubscribe ./mpi_matrix_chain < $test_file > results/mpi_$np_$i.txt
+        mpiexec -np $np --use-hwthread-cpus --oversubscribe ./mpi_matrix_chain $test_file > results/mpi_$np_$i.txt
 
         # Compare the results
         if diff -q results/brute_force_$i.txt results/mpi_$np_$i.txt > /dev/null; then
