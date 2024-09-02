@@ -42,7 +42,7 @@ int compute_for_point(double real, double imag, int K, double T, double c_r, dou
 void generate_julia_set(int N, int M, int K, double c_r, double c_i)
 {
   double T = 2.0;
-  for (int i = N - 1; i >= 0; i--)
+  for (int i = 0; i < N; i++)
   {
     for (int j = 0; j < M; j++)
     {
