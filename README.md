@@ -1,10 +1,8 @@
-<!-- file is written in markdown format -->
-
 # Homework-3: MPI
 
 ```
-Names : Mitansh Kayathwal, Pradeep Mishra
-Roll Nos: 2021101026, 2023801013
+Names : Mitansh Kayathwal
+Roll No: 2021101026
 Branch : CSE
 Course : Distributed Systems , Monsoon '24
 ```
