@@ -7,39 +7,6 @@ Branch : CSE
 Course : Distributed Systems , Monsoon '24
 ```
 
-# **_Directory Structure_**
-
-```
-📂 Team65
-├── 📁 1
-│   └── 📄 1.cpp
-│   └── 📄 1_brute_force.cpp
-│   └── 📄 1_queries.cpp
-│   └── 📄 1_tester.sh
-│   └── 📄 1_test_gen.sh
-├── 📁 2
-│   └── 📄 2.cpp
-│   └── 📄 2_brute_force.cpp
-│   └── 📄 2_tester.sh
-│   └── 📄 2_test_gen.sh
-├── 📁 3
-│   └── 📄 3.cpp
-│   └── 📄 3_brute_force.cpp
-│   └── 📄 3_tester.sh
-│   └── 📄 3_test_gen.sh
-├── 📁 4
-│   └── 📄 4.cpp
-│   └── 📄 4_brute_force.cpp
-│   └── 📄 4_tester.sh
-│   └── 📄 4_test_gen.sh
-├── 📁 5
-│   └── 📄 5.cpp
-│   └── 📄 5_brute_force.cpp
-│   └── 📄 5_tester.sh
-│   └── 📄 5_test_gen.sh
-└── 📄 Report.pdf
-```
-
 ### To run the test cases and check results:
 
 1. **Navigate to the directory** of the respective task (e.g., `cd 1` for Task 1).
