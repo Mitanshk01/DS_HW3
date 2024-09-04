@@ -1,7 +1,7 @@
 # Homework-3: MPI
 
 ```
-Names : Mitansh Kayathwal
+Name : Mitansh Kayathwal
 Roll No: 2021101026
 Branch : CSE
 Course : Distributed Systems , Monsoon '24
